@@ -22,6 +22,14 @@ func (w *Worker) CollectStats() {
 	fmt.Println("I will collect stats")
 }
 
+func (w *Worker) GetTasks() []task.Task {
+	var tasks []task.Task
+	for _, v := range w.Db {
+		tasks = append(tasks, *v)
+	}
+	return tasks
+}
+
 func (w *Worker) AddTask(t task.Task) {
 	w.Queue.Enqueue(t)
 }
