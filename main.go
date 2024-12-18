@@ -2,25 +2,44 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"rijojohn85/cube/task"
+	"rijojohn85/cube/worker"
 	"time"
 
 	"github.com/docker/docker/client"
+	"github.com/golang-collections/collections/queue"
+	"github.com/google/uuid"
 )
 
 func main() {
-	d, result := createContainer()
-	if result.Error != nil {
-		fmt.Printf("%v\n", result.Error)
-		os.Exit(1)
+	db := make(map[uuid.UUID]*task.Task)
+	w := worker.Worker{
+		Queue: *queue.New(),
+		Db:    db,
 	}
-	fmt.Printf("Container is running\n")
-	time.Sleep(time.Second * 5)
-	result = stopContainer(d, result.ContainerId)
+	t := task.Task{
+		ID:    uuid.New(),
+		Name:  "test-container-1",
+		State: task.Scheduled,
+		Image: "strm/helloworld-http",
+	}
+	fmt.Println("Starting task")
+	w.AddTask(t)
+	result := w.RunTask()
 	if result.Error != nil {
-		fmt.Printf("%v\n", result.Error)
-		os.Exit(1)
+		panic(result.Error)
+	}
+
+	t.ContainerID = result.ContainerId
+	fmt.Printf("Task %s is running in container %s\n", t.ID, t.ContainerID)
+	fmt.Println("Sleeptime")
+	time.Sleep(time.Minute * 2)
+	fmt.Printf("Stopping task %s", t.ID)
+	t.State = task.Completed
+	w.AddTask(t)
+	result = w.RunTask()
+	if result.Error != nil {
+		panic(result.Error)
 	}
 }
 
