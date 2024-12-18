@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -28,5 +28,8 @@ func (a *Api) initRouter() {
 
 func (a *Api) Start() {
 	a.initRouter()
-	http.ListenAndServe(fmt.Sprintf("%s:%d", a.Address, a.Port), a.Router)
+	log.Printf("Listening on %s:%d", a.Address, a.Port)
+	log.Println(a.Address)
+	log.Println(a.Port)
+	http.ListenAndServe(":5555", a.Router)
 }
