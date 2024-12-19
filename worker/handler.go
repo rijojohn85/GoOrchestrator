@@ -11,6 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
+func (a *Api) GetStatsHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(a.Worker.Stats)
+}
+
 func (a *Api) StartTaskHandler(w http.ResponseWriter, req *http.Request) {
 	var te task.TaskEvent
 	err := json.NewDecoder(req.Body).Decode(&te)
